@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Відлік до Нового Року 2026</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Playfair+Display:ital,wght@1,700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #0f0c29;
+            --bg-mid: #302b63;
+            --bg-light: #24243e;
+            --accent-gold: #ffd700;
+            --accent-glow: rgba(255, 215, 0, 0.6);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-white: #ffffff;
+            --neon-blue: #00f3ff;
+            --neon-pink: #ff00ff;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: linear-gradient(135deg, var(--bg-deep), var(--bg-mid), var(--bg-light));
+            min-height: 100vh;
+            overflow: hidden;
+            font-family: 'Montserrat', sans-serif;
+            color: var(--text-white);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        /* Canvas for Particles & Fireworks */
+        #canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+        /* Parallax Layers */
+        .parallax-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+        }
+        .layer-back {
+            z-index: 0;
+        }
+        .layer-mid {
+            z-index: 2;
+        }
+        .layer-front {
+            z-index: 10;
+        }
+        /* Main Container */
+        .container {
+            text-align: center;
+            position: relative;
+            z-index: 10;
+            padding: 2rem;
+            transition: transform 0.1s ease-out;
+        }
+        /* Header Text */
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-style: italic;
+            margin-bottom: 1rem;
+            color: var(--accent-gold);
+            text-shadow: 0 0 20px var(--accent-glow);
+            animation: breathe 4s ease-in-out infinite;
+        }
+        /* Glitch Effect for Year */
+        .year-wrapper {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 2rem;
+        }
+        .year-text {
+            font-size: 7rem;
+            font-weight: 900;
+            background: linear-gradient(to bottom, #fff, #e0e0e0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.3));
+            line-height: 1;
+            position: relative;
+        }
+        .year-text::before,
+        .year-text::after {
+            content: '2026';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-deep);
+            overflow: hidden;
+            opacity: 0;
+        }
+        .year-text.glitch::before {
+            left: 2px;
+            text-shadow: -1px 0 var(--neon-blue);
+            animation: glitch-anim-1 2s infinite linear alternate-reverse;
+            opacity: 0.8;
+            -webkit-text-fill-color: var(--text-white);
+            clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+        }
+        .year-text.glitch::after {
+            left: -2px;
+            text-shadow: -1px 0 var(--neon-pink);
+            animation: glitch-anim-2 3s infinite linear alternate-reverse;
+            opacity: 0.8;
+            -webkit-text-fill-color: var(--text-white);
+            clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+        }
+        /* Glassmorphism Countdown */
+        .countdown-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            /* Changed to 3 columns */
+            gap: 1.5rem;
+            perspective: 1000px;
+        }
+        .time-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 2rem 1.5rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .time-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px 0 rgba(255, 215, 0, 0.2);
+            border-color: rgba(255, 215, 0, 0.3);
+        }
+        .number {
+            display: block;
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        .label {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.8;
+        }
+        /* Wishes Container */
+        #wishes-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 5;
+        }
+        .wish {
+            position: absolute;
+            bottom: -50px;
+            color: var(--accent-gold);
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
+            font-style: italic;
+            text-shadow: 0 0 10px var(--accent-glow);
+            opacity: 0;
+            animation: floatUp 8s ease-in forwards;
+            white-space: nowrap;
+        }
+        /* Test Button */
+        .test-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 30px;
+            cursor: pointer;
+            z-index: 100;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.8rem;
+            transition: all 0.3s;
+        }
+        .test-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        /* Super Animation Styles */
+        .new-year-message {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            text-align: center;
+            z-index: 20;
+        }
+        .new-year-message h1 {
+            font-size: 5rem;
+            color: #fff;
+            text-shadow: 0 0 20px #ff00de, 0 0 40px #ff00de, 0 0 80px #ff00de;
+            animation: pulse-glow 0.5s infinite alternate;
+        }
+        @keyframes pulse-glow {
+            from {
+                text-shadow: 0 0 20px #ff00de, 0 0 40px #ff00de;
+                transform: scale(1);
+            }
+            to {
+                text-shadow: 0 0 40px #00f3ff, 0 0 80px #00f3ff;
+                transform: scale(1.1);
+            }
+        }
+        /* Animations */
+        @keyframes breathe {
+            0%,
+            100% {
+                text-shadow: 0 0 20px var(--accent-glow);
+                transform: scale(1);
+            }
+            50% {
+                text-shadow: 0 0 40px var(--accent-glow), 0 0 10px var(--accent-gold);
+                transform: scale(1.02);
+            }
+        }
+        @keyframes glitch-anim-1 {
+            0% {
+                clip-path: inset(20% 0 80% 0);
+            }
+            20% {
+                clip-path: inset(60% 0 10% 0);
+            }
+            40% {
+                clip-path: inset(40% 0 50% 0);
+            }
+            60% {
+                clip-path: inset(80% 0 5% 0);
+            }
+            80% {
+                clip-path: inset(10% 0 70% 0);
+            }
+            100% {
+                clip-path: inset(30% 0 50% 0);
+            }
+        }
+        @keyframes glitch-anim-2 {
+            0% {
+                clip-path: inset(10% 0 60% 0);
+            }
+            20% {
+                clip-path: inset(80% 0 5% 0);
+            }
+            40% {
+                clip-path: inset(30% 0 20% 0);
+            }
+            60% {
+                clip-path: inset(10% 0 80% 0);
+            }
+            80% {
+                clip-path: inset(50% 0 30% 0);
+            }
+            100% {
+                clip-path: inset(70% 0 10% 0);
+            }
+        }
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) scale(0.8);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.8;
+            }
+            90% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-80vh) scale(1.2);
+                opacity: 0;
+            }
+        }
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            .year-text {
+                font-size: 5rem;
+            }
+            .countdown-grid {
+                grid-template-columns: repeat(1, 1fr);
+                /* Stack on mobile */
+                gap: 1rem;
+            }
+            .number {
+                font-size: 2.5rem;
+            }
+            .new-year-message h1 {
+                font-size: 3rem;
+            }
+        }
+        @media (max-width: 480px) {
+            .container {
+                padding: 1rem;
+            }
+            .year-text {
+                font-size: 3.5rem;
+            }
+            .number {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas-container"></canvas>
+    <div id="wishes-container"></div>
+    <div class="parallax-layer layer-mid" id="parallax-bg"></div>
+    <div class="parallax-layer layer-front">
+        <div class="container" id="main-content">
+            <h1>Відлік до</h1>
+            <div class="year-wrapper">
+                <span class="year-text" id="year-glitch">2026</span>
+            </div>
+            <div class="countdown-grid">
+                <!-- Days removed -->
+                <div class="time-card">
+                    <span class="number" id="hours">00</span>
+                    <span class="label">Годин</span>
+                </div>
+                <div class="time-card">
+                    <span class="number" id="minutes">00</span>
+                    <span class="label">Хвилин</span>
+                </div>
+                <div class="time-card">
+                    <span class="number" id="seconds">00</span>
+                    <span class="label">Секунд</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="new-year-message" id="success-msg">
+        <h1>З НОВИМ<br>РОКОМ<br>2026!</h1>
+    </div>
+    <script>
+        /**
+         * COUNTDOWN LOGIC
+         */
+        const targetDate = new Date('January 1, 2026 00:00:00').getTime();
+        let countdownInterval;
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = targetDate - now;
+            if (distance < 0) {
+                launchSuperAnimation();
+                return;
+            }
+            // Calculate total hours including days
+            const hours = Math.floor(distance / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            document.getElementById('hours').innerText = String(hours).padStart(2, '0');
+            document.getElementById('minutes').innerText = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
+        }
+        countdownInterval = setInterval(updateCountdown, 1000);
+        updateCountdown();
+        /**
+         * SUPER ANIMATION
+         */
+        function launchSuperAnimation() {
+            clearInterval(countdownInterval);
+            // Hide countdown, show message
+            document.getElementById('main-content').style.display = 'none';
+            document.getElementById('success-msg').style.display = 'block';
+            // Intense Fireworks Loop
+            setInterval(() => {
+                const colors = ['#ff00de', '#00f3ff', '#ffd700', '#ffffff', '#ff3333'];
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                // Random explosion positions
+                const x = Math.random() * window.innerWidth;
+                const y = Math.random() * window.innerHeight * 0.8; // Keep mostly upper part
+                // Spawn more particles per explosion
+                for (let i = 0; i < 50; i++) {
+                    fireworks.push(new FireworkParticle(x, y, color));
+                }
+            }, 200); // 5 explosions per second
+            // Also spawn from center
+            setInterval(() => {
+                const cx = window.innerWidth / 2;
+                const cy = window.innerHeight / 2;
+                const color = '#ffd700';
+                for (let i = 0; i < 30; i++) {
+                    fireworks.push(new FireworkParticle(cx, cy, color));
+                }
+            }, 800);
+        }
+        /**
+         * GLITCH EFFECT TRIGGER
+         */
+        const yearText = document.getElementById('year-glitch');
+        setInterval(() => {
+            if (Math.random() > 0.7) {
+                yearText.classList.add('glitch');
+                setTimeout(() => yearText.classList.remove('glitch'), 200 + Math.random() * 300);
+            }
+        }, 2000);
+        /**
+         * FLOATING WISHES SYSTEM
+         */
+        const wishes = [
+            "Миру та Перемоги!",
+            "Щастя та Здоров'я!",
+            "Здійснення Мрій!",
+            "Кохання та Радості!",
+            "Нових Звершень!",
+            "Світлого Майбутнього!",
+            "Гармонії та Затишку!",
+            "Невичерпної Енергії!"
+        ];
+        function spawnWish() {
+            const container = document.getElementById('wishes-container');
+            const wish = document.createElement('div');
+            wish.classList.add('wish');
+            wish.innerText = wishes[Math.floor(Math.random() * wishes.length)];
+            // Random position
+            wish.style.left = Math.random() * 80 + 10 + '%';
+            // Random size variation
+            wish.style.fontSize = (1 + Math.random() * 0.5) + 'rem';
+            container.appendChild(wish);
+            // Cleanup
+            setTimeout(() => {
+                wish.remove();
+            }, 8000);
+        }
+        setInterval(spawnWish, 2500);
+        /**
+         * PARALLAX EFFECT
+         */
+        const container = document.getElementById('main-content');
+        document.addEventListener('mousemove', (e) => {
+            const x = (window.innerWidth - e.pageX * 2) / 100;
+            const y = (window.innerHeight - e.pageY * 2) / 100;
+            // Move content slightly opposite to mouse
+            container.style.transform = `translate(${x}px, ${y}px)`;
+        });
+        /**
+         * CANVAS PARTICLES & FIREWORKS
+         */
+        const canvas = document.getElementById('canvas-container');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+        let fireworks = [];
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+        // Background Particle Class (Embers/Stars)
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5 - 0.2; // Slight upward drift
+                this.size = Math.random() * 2 + 0.5;
+                this.alpha = Math.random() * 0.5 + 0.1;
+                this.color = `rgba(255, 215, 0, ${this.alpha})`; // Goldish
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                // Wrap around screen
+                if (this.x < 0) this.x = width;
+                if (this.x > width) this.x = 0;
+                if (this.y < 0) this.y = height;
+                if (this.y > height) this.y = 0;
+            }
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        // Firework Particle Class
+        class FireworkParticle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 4 + 2;
+                this.vx = Math.cos(angle) * speed;
+                this.vy = Math.sin(angle) * speed;
+                this.life = 100;
+                this.color = color;
+                this.gravity = 0.1;
+            }
+            update() {
+                this.vx *= 0.95; // Drag
+                this.vy *= 0.95;
+                this.vy += this.gravity;
+                this.x += this.vx;
+                this.y += this.vy;
+                this.life -= 2;
+            }
+            draw() {
+                ctx.globalAlpha = this.life / 100;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            }
+        }
+        // Initialize Background Particles
+        for (let i = 0; i < 100; i++) {
+            particles.push(new Particle());
+        }
+        // Animation Loop
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            // Update & Draw Background Particles
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            // Update & Draw Fireworks
+            for (let i = fireworks.length - 1; i >= 0; i--) {
+                fireworks[i].update();
+                fireworks[i].draw();
+                if (fireworks[i].life <= 0) {
+                    fireworks.splice(i, 1);
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+        animate();
+        // Click Interaction for Fireworks
+        document.addEventListener('mousedown', (e) => {
+            const colors = ['#ff0043', '#14fc56', '#1e90ff', '#ffff00', '#ffffff'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            const count = 30; // Particles per explosion
+            for (let i = 0; i < count; i++) {
+                fireworks.push(new FireworkParticle(e.clientX, e.clientY, color));
+            }
+        });
+        // Touch support for mobile fireworks
+        document.addEventListener('touchstart', (e) => {
+            const touch = e.touches[0];
+            const colors = ['#ff0043', '#14fc56', '#1e90ff', '#ffff00', '#ffffff'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            const count = 30;
+            for (let i = 0; i < count; i++) {
+                fireworks.push(new FireworkParticle(touch.clientX, touch.clientY, color));
+            }
+        });
+    </script>
+</body>
+</html>
